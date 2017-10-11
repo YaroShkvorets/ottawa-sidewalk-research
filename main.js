@@ -10,11 +10,14 @@ const tree = {
 
 roadsWithSidewalks = [];
 roadsWithoutSidewalks = [];
+roadsToSplit = [];
 
-const inPedDataPath = "data/ottawa_urban_sidewalks.json"
-const inRoadDataPath = "data/ottawa_urban_roads.json"
-const outRoadsWithSidewalksPath = "data/ottawa_urban_roads_with_sidewalks.json"
-const outRoadsWithoutSidewalksPath = "data/ottawa_urban_roads_without_sidewalks.json"
+const inPedDataPath = "data/ottawa_central_sidewalks.json"
+const inRoadDataPath = "data/ottawa_central_roads.json"
+const outRoadsWithSidewalksPath = "data/ottawa_central_roads_with_sidewalks.json"
+const outRoadsWithoutSidewalksPath = "data/ottawa_central_roads_without_sidewalks.json"
+const outRoadsToSplitPath = "data/ottawa_central_roads_to_split.json"
+
 
 const kOffsetFromRoadEnd = 5   //disregard kRoadTestStep meters from road end
 const kRoadTestStep = 5        //test points with kRoadTestStep meters staticBasePath
@@ -89,6 +92,13 @@ for (let road of roads) {
   else {
     roadsWithoutSidewalks.push(road)
   }
+  if(roadlen > 300 &&
+    pointsWithSidewalk<pointsTotal*kPointsWithSidewalksThreshold &&
+    pointsWithSidewalk>pointsTotal*0.5 &&
+    road.properties.type!="service")
+  {
+    roadsToSplit.push(road)
+  }
 }
 
 function isSidewalkCloseEnough(line, pt)
@@ -100,6 +110,12 @@ function isSidewalkCloseEnough(line, pt)
 
 writer(outRoadsWithSidewalksPath, turf.featureCollection(roadsWithSidewalks))
 writer(outRoadsWithoutSidewalksPath, turf.featureCollection(roadsWithoutSidewalks))
+writer(outRoadsToSplitPath, turf.featureCollection(roadsToSplit))
 
-console.log('Matched sidewalks for', roadsWithSidewalks.length, '/', roads.length, 'roads')
+
+
+console.log('Roads with sidewalks: ', roadsWithSidewalks.length)
+console.log('Roads without sidewalks: ', roadsWithoutSidewalks.length)
+console.log('Roads to split: ', roadsToSplit.length)
+
 console.timeEnd('Time')

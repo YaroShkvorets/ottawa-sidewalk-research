@@ -15,32 +15,34 @@
       .legend {
         line-height: 18px;
         color: #555;
-      } 
+      }
     </style>
-    
+
   </head>
   <body style="margin:0px">
      <div style="height: 100vh;" id="mapid"></div>
   </body>
-  
-  <script src="https://unpkg.com/leaflet@0.7.7/dist/leaflet.js"></script>
-  
-  <script>
-    var map = L.map('mapid').setView([45.386516, -75.716314], 14)
-    var settings = [{ color: '#37b9e5', width: 1, key: 'sidewalks', zIndex: 1, title: 'Pedestrian Network (city data)', url: 'data/ottawa_urban_sidewalks.json' },
-                  { color: '#1C7C54', width: 2, key: 'roads_with_sidewalks', zIndex: 2, title: 'Roads to tag with sidewalk=yes', url: 'data/ottawa_urban_roads_with_sidewalks.json' },
-                  { color: '#DD5454', width: 2, key: 'roads_without_sidewalks', zIndex: 3, title: 'Roads to tag with sidewalk=no', url: 'data/ottawa_urban_roads_without_sidewalks.json' }]                 
-    var legendTitle = 'Sidewalks map'
-    var layers = {}
 
-    var myLayers = {};
-    var highlight;
-    for(var i=0; i<settings.length; i++){
-        myLayers[settings[i].key]=L.geoJson(null,{
+  <script src="https://unpkg.com/leaflet@0.7.7/dist/leaflet.js"></script>
+
+  <script>
+    const map = L.map('mapid').setView([45.410382, -75.708117], 14)
+    const settings = [{ color: '#37b9e5', width: 1, key: 'sidewalks', zIndex: 1, title: 'Pedestrian Network (city data)', url: 'data/ottawa_central_sidewalks.json' },
+                  { color: '#1C7C54', width: 2, key: 'roads_with_sidewalks', zIndex: 2, title: 'Roads to tag with sidewalk=yes', url: 'data/ottawa_central_roads_with_sidewalks.json' },
+                  { color: '#DD5454', width: 2, key: 'roads_without_sidewalks', zIndex: 3, title: 'Roads to tag with sidewalk=no', url: 'data/ottawa_central_roads_without_sidewalks.json' },
+                  { color: 'orange', width: 2, key: 'roads_to_split', zIndex: 4, title: 'Roads to split (sidewalk > 50%)', url: 'data/ottawa_central_roads_to_split.json' }]
+    const legendTitle = 'Sidewalks map'
+    const layers = {}
+
+    const myLayers = {};
+    let highlight;
+    for(let setting of settings){
+        myLayers[setting.key]=L.geoJson(null,{
             onEachFeature: function(feature, layer) {
               if ( feature.properties && feature.properties.points_tested) {
                   let popup = feature.properties.name?feature.properties.name:'No name';
                   popup += '<hr>OSM id: '+feature.properties.osm_id;
+                  popup += '<br>Type: '+feature.properties.type;
                   popup += '<br>Id: '+feature.properties.id;
                   popup += '<br>Points tested: '+feature.properties.points_tested;
                   popup += '<br>Points with sidewalk: '+feature.properties.points_with_sidewalk;
@@ -51,7 +53,7 @@
               else {
                 if(feature.properties.WALK_TYPE){
                   let popup = feature.properties.WALK_TYPE;
-                  popup += '<hr>Id: '+feature.properties.id;                  
+                  popup += '<hr>Id: '+feature.properties.id;
                   layer.bindPopup(popup);
                 }
               }
@@ -60,61 +62,61 @@
                   map.removeLayer(highlight)
                 }
                 highlight = new L.geoJson(e.target.feature,{style: {color:'#df42f4',  weight: 5}}).addTo(map);
-                   
+
               });
             }
         }).addTo(map);
     }
-      
+
     L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
           attribution: "&copy; <a href='https://www.mapbox.com/about/maps/'>Mapbox</a> © <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> <strong><a href='https://www.mapbox.com/map-feedback/' target='_blank'>Improve this map</a></strong>",
           maxZoom: 18,
           id: 'mapbox.light',
           accessToken: 'pk.eyJ1IjoienpwdGljaGthIiwiYSI6ImNqN2FubTQ5ejBpZDAyd285MmZsdHN3d3IifQ.dc6SvmJLcl7KGPQlBYFj-g'
       }).addTo(map)
-    
+
     addLegend()
     addRoadLayers()
-    
-    
+
+
 
     function addRoadLayers(){
-      for (var i = 0; i < settings.length; i++) {
-       addLayer(settings[i]);
+      for (let setting of settings) {
+       addLayer(setting);
      }
     }
-    
-        
+
+
     function addLayer (setting) {
-      var xhr = new XMLHttpRequest()
+      const xhr = new XMLHttpRequest()
       xhr.open('GET', setting.url)
       xhr.setRequestHeader('Content-Type', 'application/json')
       xhr.onload = function () {
         if (xhr.status === 200) {
-          var data = JSON.parse(xhr.responseText);
-          
+          const data = JSON.parse(xhr.responseText);
+
           myLayers[setting.key].addData(data.features);
           myLayers[setting.key].setStyle({
               "color": setting.color,
               "weight": setting.width,
               "opacity": 1.0
           });
-                
+
         } else {
           alert('Request failed.  Returned status of ' + xhr.status)
         }
       }
       xhr.send()
     }
-    
-    
+
+
     function addLegend () {
-      var legend = L.control({position: 'topright'})
+      const legend = L.control({position: 'topright'})
       legend.onAdd = function (map) {
-        var div = L.DomUtil.create('div', 'info legend')
-        var legendHtml = '<center><h3>' + legendTitle + '</h3></center><table>'
-        for (var i = 0; i < settings.length; i++) {
-          legendHtml += addLegendLine(settings[i])
+        const div = L.DomUtil.create('div', 'info legend')
+        let legendHtml = '<center><h3>' + legendTitle + '</h3></center><table>'
+        for (let setting of settings) {
+          legendHtml += addLegendLine(setting)
         }
         legendHtml += '</table>'
         div.innerHTML = legendHtml
@@ -142,8 +144,8 @@
         map.removeLayer(myLayers[checkbox.id])
       }
     }
-    
+
 
   </script>
-  
-</html> 
+
+</html>
