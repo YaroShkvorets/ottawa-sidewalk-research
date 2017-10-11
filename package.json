@@ -1,0 +1,25 @@
+{
+  "private": true,
+  "name": "ottawa-sidewalk-research",
+  "version": "1.0.0",
+  "description": "validate and prepare sidewalk data for OSM import",
+  "scripts": {
+    "start": "node main.js && http-server"
+  },
+  "dependencies": {
+    "@turf/bbox": "*",
+    "@turf/helpers": "*",
+    "@turf/inside": "*",
+    "@turf/meta": "*",
+    "cheap-ruler": "*",
+    "geojson-rbush": "*",
+    "geojson-writer": "*",
+    "http-server": "*",
+    "rbush": "*"
+  },
+  "devDependencies": {
+    "@types/geojson": "*",
+    "standard": "*",
+    "typescript": "*"
+  }
+}
