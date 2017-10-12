@@ -103,7 +103,6 @@ for (let road of roads) {
   road.properties.points_with_right_sidewalk = pointsWithRightSidewalk
   road.properties.length = roadlen
   if(pointsTotal && pointsWithBothSidewalks>=pointsTotal*kPointsWithSidewalksThreshold){  //kPointsWithSidewalksThreshold of points have sidewalk nearby -> good
-    //console.log(road.properties.name, 'has a sidewalk - ',roadlen,'meters long')
     roadsWithBothSidewalks.push(road);
   }
   if(pointsTotal && pointsWithLeftSidewalk>=pointsTotal*kPointsWithSidewalksThreshold){
