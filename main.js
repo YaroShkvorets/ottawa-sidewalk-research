@@ -62,17 +62,21 @@ for (let road of roads) {
     pointsTotal++;
     ptPrev = ptNext
     ptNext = ruler.along(road.geometry.coordinates, offset)
-    
+
     let pointHasLeftSidewalk=false
     let pointHasRightSidewalk=false
     loop1:
     for(let footway of nearby) {
-      if(footway.geometry.type=="MultiLineString")    //TODO: left/right for multilinestring
+      if(footway.geometry.type=="MultiLineString")    
       {
         for(let coords of footway.geometry.coordinates) {
           if(isSidewalkCloseEnough(coords, ptNext)) {
-            pointsWithSidewalk++;
-            break loop1;
+            const proj = ruler.pointOnLine(coords, ptNext).point
+            if(isPointOnLeft(ptPrev,ptNext,proj)){
+              pointHasLeftSidewalk=true;
+            }else{
+              pointHasRightSidewalk=true;
+            }
           }
         }
       }
@@ -104,10 +108,10 @@ for (let road of roads) {
   else {
     roadsWithoutSidewalks.push(road)
   }
-  if(pointsTotal && pointsWithLeftSidewalk>=pointsTotal*kPointsWithSidewalksThreshold){  
+  if(pointsTotal && pointsWithLeftSidewalk>=pointsTotal*kPointsWithSidewalksThreshold){
     roadsWithLeftSidewalks.push(road);
   }
-  if(pointsTotal && pointsWithRightSidewalk>=pointsTotal*kPointsWithSidewalksThreshold){  
+  if(pointsTotal && pointsWithRightSidewalk>=pointsTotal*kPointsWithSidewalksThreshold){
     roadsWithRightSidewalks.push(road);
   }
   if(roadlen > 300 &&
