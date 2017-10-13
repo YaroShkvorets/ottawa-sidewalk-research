@@ -98,13 +98,12 @@
         if (xhr.status === 200) {
           const data = JSON.parse(xhr.responseText);
 
-          myLayers[setting.key].addData(data.features);
+          myLayers[setting.key].addData(data.features).bringToBack();
           myLayers[setting.key].setStyle({
               "color": setting.color,
               "weight": setting.width,
               "opacity": 0.8
           });
-
         } else {
           alert('Request failed.  Returned status of ' + xhr.status)
         }

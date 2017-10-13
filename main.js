@@ -36,6 +36,7 @@ console.log('Loading roads ...')
 
 let roads = reader(inRoadDataPath).features.filter(road => road.geometry.type=='LineString' &&
   (road.properties.type == "trunk" ||
+  road.properties.type == "trunk_link" ||
   road.properties.type == "secondary" ||
   road.properties.type == "residential" ||
   road.properties.type == "service" ||
