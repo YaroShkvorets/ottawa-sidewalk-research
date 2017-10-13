@@ -35,6 +35,7 @@ sidewalkTree.load(footways)
 console.log('Loading roads ...')
 
 let roads = reader(inRoadDataPath).features.filter(road => road.geometry.type=='LineString' &&
+  road.properties.name != 'Transitway' &&
   (road.properties.type == "trunk" ||
   road.properties.type == "trunk_link" ||
   road.properties.type == "secondary" ||
@@ -118,7 +119,7 @@ for (let road of roads) {
       roadsWithNoSidewalks.push(road)
     }
   }
-    
+
   if(roadlen > 300 &&
     pointsWithNoSidewalks>pointsTotal*(1-kPointsWithSidewalksThreshold) &&
     pointsWithNoSidewalks<pointsTotal*0.5 &&
