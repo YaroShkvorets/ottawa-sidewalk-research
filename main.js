@@ -22,7 +22,7 @@ const outRoadsWithRightSidewalksPath = "data/ottawa_central_roads_with_right_sid
 
 const kOffsetFromRoadEnd = 5   //disregard kRoadTestStep meters from road end
 const kRoadTestStep = 3        //test points with kRoadTestStep meters staticBasePath
-const kPointDistanceNearby = 18 //if there is a sidewalk within kPointDistanceNearby meters - point has sidewalk
+const kPointDistanceNearby = 15 //if there is a sidewalk within kPointDistanceNearby meters - point has sidewalk
 const kPointsWithSidewalksThreshold = 0.80 //kPointsWithSidewalksThreshold of road points have sidewalk nearby -> road has sidewalk
 
 console.time('Time')
@@ -38,6 +38,7 @@ let roads = reader(inRoadDataPath).features.filter(road => road.geometry.type=='
   (road.properties.type == "trunk" ||
   road.properties.type == "trunk_link" ||
   road.properties.type == "secondary" ||
+  road.properties.type == "secondary_link" ||   //do we need to tag links at all?
   road.properties.type == "residential" ||
   road.properties.type == "service" ||
   road.properties.type == "tertiary" ||
@@ -103,18 +104,21 @@ for (let road of roads) {
   road.properties.points_with_left_sidewalk = pointsWithLeftSidewalk
   road.properties.points_with_right_sidewalk = pointsWithRightSidewalk
   road.properties.length = roadlen
-  if(pointsTotal && pointsWithBothSidewalks>=pointsTotal*kPointsWithSidewalksThreshold){  //kPointsWithSidewalksThreshold of points have sidewalk nearby -> good
-    roadsWithBothSidewalks.push(road);
+  if(pointsTotal){
+    if(pointsWithBothSidewalks>=pointsTotal*kPointsWithSidewalksThreshold){  //kPointsWithSidewalksThreshold of points have sidewalk nearby -> good
+      roadsWithBothSidewalks.push(road);
+    }
+    else if(pointsWithLeftSidewalk>=pointsTotal*kPointsWithSidewalksThreshold){
+      roadsWithLeftSidewalks.push(road);
+    }
+    else if(pointsWithRightSidewalk>=pointsTotal*kPointsWithSidewalksThreshold){
+      roadsWithRightSidewalks.push(road);
+    }
+    else{
+      roadsWithNoSidewalks.push(road)
+    }
   }
-  if(pointsTotal && pointsWithLeftSidewalk>=pointsTotal*kPointsWithSidewalksThreshold){
-    roadsWithLeftSidewalks.push(road);
-  }
-  if(pointsTotal && pointsWithRightSidewalk>=pointsTotal*kPointsWithSidewalksThreshold){
-    roadsWithRightSidewalks.push(road);
-  }
-  if(pointsTotal && pointsWithNoSidewalks>pointsTotal*(1-kPointsWithSidewalksThreshold)){
-    roadsWithNoSidewalks.push(road)
-  }
+    
   if(roadlen > 300 &&
     pointsWithNoSidewalks>pointsTotal*(1-kPointsWithSidewalksThreshold) &&
     pointsWithNoSidewalks<pointsTotal*0.5 &&
