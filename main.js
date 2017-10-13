@@ -39,7 +39,8 @@ let roads = reader(inRoadDataPath).features.filter(road => road.geometry.type=='
   (road.properties.type == "trunk" ||
   road.properties.type == "trunk_link" ||
   road.properties.type == "secondary" ||
-  road.properties.type == "secondary_link" ||   //do we need to tag links at all?
+  road.properties.type == "secondary_link" ||   
+  road.properties.type == "tertiary_link" ||   //do we need to tag links at all?
   road.properties.type == "residential" ||
   road.properties.type == "service" ||
   road.properties.type == "tertiary" ||
