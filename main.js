@@ -60,8 +60,9 @@ for (let road of roads) {
   bbox[3]+=0.001
 
   let nearby = sidewalkTree.search(bbox).features
-  let ptPrev = ptNext = road.geometry.coordinates
+  let ptPrev = ptNext = road.geometry.coordinates[0]
   while(nearby.length && (pointsTotal==0 || offset<roadlen-kOffsetFromRoadEnd)){
+    if(pointsTotal==0 && offset>roadlen-kOffsetFromRoadEnd){offset = roadlen/2} //if segment is really short
     pointsTotal++;
     ptPrev = ptNext
     ptNext = ruler.along(road.geometry.coordinates, offset)
