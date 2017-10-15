@@ -11,19 +11,22 @@ roadsWithLeftSidewalks = [];
 roadsWithRightSidewalks = [];
 roadsWithNoSidewalks = [];
 roadsToSplit = [];
+roadsTooShort = [];
 
-const inPedDataPath = "data/ottawa_central_sidewalks.json"
-const inRoadDataPath = "data/ottawa_central_roads.json"
-const outRoadsWithBothSidewalksPath = "data/ottawa_central_roads_with_both_sidewalks.json"
-const outroadsWithNoSidewalksPath = "data/ottawa_central_roads_without_sidewalks.json"
-const outRoadsToSplitPath = "data/ottawa_central_roads_to_split.json"
-const outRoadsWithLeftSidewalksPath = "data/ottawa_central_roads_with_left_sidewalks.json"
-const outRoadsWithRightSidewalksPath = "data/ottawa_central_roads_with_right_sidewalks.json"
+const inPedDataPath = "data/ottawa_urban_sidewalks.json"
+const inRoadDataPath = "data/ottawa_urban_roads.json"
+const outRoadsWithBothSidewalksPath = "data/roads_with_both_sidewalks.json"
+const outroadsWithNoSidewalksPath = "data/roads_without_sidewalks.json"
+const outRoadsToSplitPath = "data/roads_to_split.json"
+const outRoadsWithLeftSidewalksPath = "data/roads_with_left_sidewalks.json"
+const outRoadsWithRightSidewalksPath = "data/roads_with_right_sidewalks.json"
+const outRoadsTooShortPath = "data/roads_too_short.json"
 
 const kOffsetFromRoadEnd = 5   //disregard kRoadTestStep meters from road end
 const kRoadTestStep = 3        //test points with kRoadTestStep meters staticBasePath
 const kPointDistanceNearby = 15 //if there is a sidewalk within kPointDistanceNearby meters - point has sidewalk
 const kPointsWithSidewalksThreshold = 0.80 //kPointsWithSidewalksThreshold of road points have sidewalk nearby -> road has sidewalk
+const kTooShortThreshold = 20
 
 console.time('Time')
 console.log('Loading sidewalks ...')
@@ -35,16 +38,16 @@ sidewalkTree.load(footways)
 console.log('Loading roads ...')
 
 let roads = reader(inRoadDataPath).features.filter(road => road.geometry.type=='LineString' &&
-  road.properties.name != 'Transitway' &&
-  (road.properties.type == "trunk" ||
-  road.properties.type == "trunk_link" ||
-  road.properties.type == "secondary" ||
-  road.properties.type == "secondary_link" ||   
-  road.properties.type == "tertiary_link" ||   //do we need to tag links at all?
-  road.properties.type == "residential" ||
-  road.properties.type == "service" ||
-  road.properties.type == "tertiary" ||
-  road.properties.type == "unclassified" ));
+  road.properties.name.indexOf('Transitway')==-1 &&
+  (road.properties.highway == "trunk" ||
+  road.properties.highway == "trunk_link" ||
+  road.properties.highway == "secondary" ||
+  road.properties.highway == "secondary_link" ||   
+  road.properties.highway == "tertiary_link" ||   //do we need to tag links at all?
+  road.properties.highway == "residential" ||
+  road.properties.highway == "service" ||
+  road.properties.highway == "tertiary" ||
+  road.properties.highway == "unclassified" ));
 
 console.log('Loaded', footways.features.length,'sidewalks and', roads.length,'roads')
 
@@ -108,24 +111,31 @@ for (let road of roads) {
   road.properties.points_with_right_sidewalk = pointsWithRightSidewalk
   road.properties.length = roadlen
   if(pointsTotal){
-    if(pointsWithBothSidewalks>=pointsTotal*kPointsWithSidewalksThreshold){  //kPointsWithSidewalksThreshold of points have sidewalk nearby -> good
+    if(roadlen<kTooShortThreshold)
+    {
+      roadsTooShort.push(road);
+    }
+    else if(pointsTotal && pointsWithBothSidewalks>=pointsTotal*kPointsWithSidewalksThreshold){  //kPointsWithSidewalksThreshold of points have sidewalk nearby -> good
       roadsWithBothSidewalks.push(road);
     }
-    else if(pointsWithLeftSidewalk>=pointsTotal*kPointsWithSidewalksThreshold){
+    else if(pointsTotal && pointsWithLeftSidewalk>=pointsTotal*kPointsWithSidewalksThreshold){
       roadsWithLeftSidewalks.push(road);
     }
-    else if(pointsWithRightSidewalk>=pointsTotal*kPointsWithSidewalksThreshold){
+    else if(pointsTotal && pointsWithRightSidewalk>=pointsTotal*kPointsWithSidewalksThreshold){
       roadsWithRightSidewalks.push(road);
     }
     else{
       roadsWithNoSidewalks.push(road)
     }
   }
+  else{ //no sidewalks nearby at all
+    roadsWithNoSidewalks.push(road)
+  }
 
   if(roadlen > 300 &&
     pointsWithNoSidewalks>pointsTotal*(1-kPointsWithSidewalksThreshold) &&
     pointsWithNoSidewalks<pointsTotal*0.5 &&
-    road.properties.type!="service")
+    road.properties.highway!="service")
   {
     roadsToSplit.push(road)
   }
@@ -147,6 +157,7 @@ writer(outRoadsWithLeftSidewalksPath, turf.featureCollection(roadsWithLeftSidewa
 writer(outRoadsWithRightSidewalksPath, turf.featureCollection(roadsWithRightSidewalks))
 writer(outroadsWithNoSidewalksPath, turf.featureCollection(roadsWithNoSidewalks))
 writer(outRoadsToSplitPath, turf.featureCollection(roadsToSplit))
+writer(outRoadsTooShortPath, turf.featureCollection(roadsTooShort))
 
 
 console.log('Roads with both sidewalks: ', roadsWithBothSidewalks.length)
@@ -154,5 +165,6 @@ console.log('Roads with left sidewalks: ', roadsWithLeftSidewalks.length)
 console.log('Roads with right sidewalks: ', roadsWithRightSidewalks.length)
 console.log('Roads with no sidewalks: ', roadsWithNoSidewalks.length)
 console.log('Roads to split: ', roadsToSplit.length)
+console.log('Roads too short: ', roadsTooShort.length)
 
 console.timeEnd('Time')

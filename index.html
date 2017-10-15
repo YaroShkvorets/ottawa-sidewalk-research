@@ -28,12 +28,13 @@
   <script>
     let map;
     let layersControl;
-    const settings = [{ color: '#37b9e5', width: 1, key: 'sidewalks', zIndex: 1, title: 'Pedestrian Network (<a href="http://data.ottawa.ca/dataset/pedestrian-network">city data</a>)', url: 'data/ottawa_central_sidewalks.json' },
-                  { color: '#1C7C54', width: 2, key: 'roads_with_both_sidewalks', zIndex: 2, title: 'Roads to tag with sidewalk=both', url: 'data/ottawa_central_roads_with_both_sidewalks.json' },
-                  { color: 'DarkOrchid', width: 2, key: 'roads_with_left_sidewalks', zIndex: 3, title: 'Roads to tag with sidewalk=left', url: 'data/ottawa_central_roads_with_left_sidewalks.json' },
-                  { color: 'Lime', width: 2, key: 'roads_with_right_sidewalks', zIndex: 3, title: 'Roads to tag with sidewalk=right', url: 'data/ottawa_central_roads_with_right_sidewalks.json' },
-                  { color: '#DD5454', width: 2, key: 'roads_without_sidewalks', zIndex: 3, title: 'Roads to tag with sidewalk=no', url: 'data/ottawa_central_roads_without_sidewalks.json' }/*,
-                  { color: 'orange', width: 2, key: 'roads_to_split', zIndex: 4, title: 'Roads to split (50% < sidewalks < 80%)', url: 'data/ottawa_central_roads_to_split.json' }*/]
+    const settings = [{ color: '#37b9e5', width: 1, key: 'sidewalks', zIndex: 1, title: 'Pedestrian Network (<a href="http://data.ottawa.ca/dataset/pedestrian-network">city data</a>)', url: 'data/ottawa_urban_sidewalks.json' },
+                  { color: '#1C7C54', width: 2, key: 'roads_with_both_sidewalks', zIndex: 2, title: 'Roads to tag with sidewalk=both', url: 'data/roads_with_both_sidewalks.json' },
+                  { color: 'DarkOrchid', width: 2, key: 'roads_with_left_sidewalks', zIndex: 3, title: 'Roads to tag with sidewalk=left', url: 'data/roads_with_left_sidewalks.json' },
+                  { color: 'Lime', width: 2, key: 'roads_with_right_sidewalks', zIndex: 3, title: 'Roads to tag with sidewalk=right', url: 'data/roads_with_right_sidewalks.json' },
+                  { color: '#DD5454', width: 2, key: 'roads_without_sidewalks', zIndex: 3, title: 'Roads to tag with sidewalk=no', url: 'data/roads_without_sidewalks.json' },
+                  { color: 'orange', width: 2, key: 'roads_too_short', zIndex: 4, title: 'Roads too short to tag (<25m)', url: 'data/roads_too_short.json' }/*,
+                  { color: 'orange', width: 2, key: 'roads_to_split', zIndex: 4, title: 'Roads to split (50% < sidewalks < 80%)', url: 'data/roads_to_split.json' }*/]
     const legendTitle = 'Sidewalks map'
     const layers = {} 
     
@@ -51,7 +52,7 @@
               if ( feature.properties && feature.properties.points_tested) {
                   let popup = feature.properties.name?feature.properties.name:'No name';
                   popup += '<hr>OSM id: '+'<a href="http://www.openstreetmap.org/way/'+feature.properties.osm_id+'">'+feature.properties.osm_id+'</a>';
-                  popup += '<br>Type: '+feature.properties.type;
+                  popup += '<br>Type: '+feature.properties.highway;
                   popup += '<br>Id: '+feature.properties.id;
                   popup += '<br>Points tested: '+feature.properties.points_tested;
                   popup += '<br>Points with both sidewalks: '+feature.properties.points_with_both_sidewalks+' ('+(100*feature.properties.points_with_both_sidewalks/feature.properties.points_tested).toFixed()+'%)';
