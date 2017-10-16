@@ -6,12 +6,12 @@ const rbush = require('geojson-rbush')
 
 const sidewalkTree = rbush()
 
-roadsWithBothSidewalks = [];
-roadsWithLeftSidewalks = [];
-roadsWithRightSidewalks = [];
-roadsWithNoSidewalks = [];
-roadsToSplit = [];
-roadsTooShort = [];
+const roadsWithBothSidewalks = [];
+const roadsWithLeftSidewalks = [];
+const roadsWithRightSidewalks = [];
+const roadsWithNoSidewalks = [];
+const roadsToSplit = [];
+const roadsTooShort = [];
 
 const inPedDataPath = "data/ottawa_urban_sidewalks.json"
 const inRoadDataPath = "data/ottawa_urban_roads.json"
@@ -38,7 +38,7 @@ sidewalkTree.load(footways)
 console.log('Loading roads ...')
 
 let roads = reader(inRoadDataPath).features.filter(road => road.geometry.type=='LineString' &&
-  road.properties.name.indexOf('Transitway')==-1 &&
+  (!road.properties.name || road.properties.name.indexOf('Transitway')==-1) &&
   (road.properties.highway == "trunk" ||
   road.properties.highway == "trunk_link" ||
   road.properties.highway == "secondary" ||
