@@ -5,7 +5,7 @@ const ruler = require('cheap-ruler')(45.34, 'meters')
 
 //const sourcePath = "ottawa_pedestrian_network.json"   //download ottawa.ca dataset from http://data.ottawa.ca/dataset/pedestrian-network/resource/e098e33a-9046-48da-bbfb-6f4a4dc2c55e
 //const sourcePath = "ottawa_canada_roads.geojson"    //download IMPOSM extract from https://mapzen.com/data/metro-extracts/metro/ottawa_canada/
-const sourcePath = "ottawa_full_roads_trimbmle.json"    //download IMPOSM extract from https://market.trimbledata.com/#/account/orders
+const sourcePath = "ottawa_full_roads_trimble.json"    //download IMPOSM extract from https://market.trimbledata.com/#/account/orders
 //const targetPath = "ottawa_central_sidewalks.json"
 const targetPath = "ottawa_full_roads.json"
 const cityBoundaryPath = "ottawa_boundaries.json"

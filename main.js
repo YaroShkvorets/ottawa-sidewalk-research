@@ -13,8 +13,8 @@ const roadsWithNoSidewalks = [];
 const roadsToSplit = [];
 const roadsTooShort = [];
 
-const inPedDataPath = "data/ottawa_urban_sidewalks.json"
-const inRoadDataPath = "data/ottawa_urban_roads.json"
+const inPedDataPath = "data/ottawa_full_sidewalks.json"
+const inRoadDataPath = "data/ottawa_full_roads.json"
 const outRoadsWithBothSidewalksPath = "data/roads_with_both_sidewalks.json"
 const outroadsWithNoSidewalksPath = "data/roads_without_sidewalks.json"
 const outRoadsToSplitPath = "data/roads_to_split.json"
