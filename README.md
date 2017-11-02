@@ -3,26 +3,26 @@ Validate and prepare sidewalk data for OSM tagging
 
 
 ## What we have
-- Ottawa pedestrian network dataset: http://data.ottawa.ca/dataset/pedestrian-network
+- [Ottawa pedestrian network dataset](http://data.ottawa.ca/dataset/pedestrian-network) available under City of Ottawa Open Data License 2.0 that is [compatible with OSM](http://wiki.openstreetmap.org/wiki/Canada:Ontario:Ottawa/Import/Plan#Licence)
 - OpenStreetMap
 
-## What we want 
-- improve OpenStreetMap sidewalk information for Ottawa streets 
+## What we want
+- improve OpenStreetMap sidewalk information for Ottawa streets
 
 ## How to map?
-After doing some research I found that OSM community is split on how to map sidewalks. Some prefer to map them as separate ways, others think it's better to do it using `sidewalk=both|no|left|right` tags. In some cases one way is better than the other. For example, for navigation tags are much more preferable while for map rendering as well as additional sidewalk information separate ways are better. 
-When mapping sidewalks as separate ways however it is very important not to leaving traffic islands, so naturally it requires a lot of work. 
+After doing some research I found that OSM community is split on how to map sidewalks. Some prefer to map them as separate ways, others think it's better to do it using `sidewalk=both|no|left|right` tags. In some cases one way is better than the other. For example, for navigation tags are much more preferable while for map rendering as well as additional sidewalk information separate ways are better.
+When mapping sidewalks as separate ways however it is very important not to leaving traffic islands, so naturally it requires a lot of work.
 
-After careful consideration and discussion in OSM-Canada community I've decided to map sidewalks as tags for this project with potential improvement to separate ways in the future 
+After careful consideration and discussion in OSM-Canada community I've decided to map sidewalks as tags for this project with potential improvement to separate ways in the future
 
 ## Initial status
 As of October 20, 2017, city sidewalks mapping is very inconsistent. In some cases sidewalks are drawn as separate ways while in other cases only tags are present. For 90%+ roads sidewalks are not mapped at all - neither as tags nor as ways.  Also, very often tags are assigned incorrectly, i.e. `sidewalk=no` for roads that have sidewalk on one side, etc
 
 Snapshot of the sidewalk map as of October 20, 2017 together with pedestrian network dataset, can be viewed here: https://zzptichka.github.io/ottawa-sidewalk-research/initial.html
 
-## City of Ottawa pedestrian network dataset 
-After analyzing dataset using satellite imagery, mapillary and local knowledge I've determined that the data is not perfect but definitely can be worked with. Even though sidewalk linestrings do not line up with satellite imagery, this information in overwhelming majority of cases is good enough to calculate whether road way has sidewalks on the left/right/both sides or whether it doesn't have one at all. 
-Another caveat is that data is a couple of years behind, so sidewalks from some new developments are not yet in the dataset. 
+## City of Ottawa pedestrian network dataset
+After analyzing dataset using satellite imagery, mapillary and local knowledge I've determined that the data is not perfect but definitely can be worked with. Even though sidewalk linestrings do not line up with satellite imagery, this information in overwhelming majority of cases is good enough to calculate whether road way has sidewalks on the left/right/both sides or whether it doesn't have one at all.
+Another caveat is that data is a couple of years behind, so sidewalks from some new developments are not yet in the dataset.
 
 To deal with data inconsistency there will be a separate tool to visually identify such errors and modify tags afterwards.
 
@@ -32,19 +32,19 @@ The following scripts were written for this project:
 - **extract.js** - helper script that extracts geojson of ways we'll be using for analysis from Ottawa area extract downloaded from trimble.com (mapzen.com metro extracts can also be used)
 
 - **main.js** - main script that takes supplied geojson extract of Ottawa ways and pedestrian network dataset, calculates which tags should be applied for each way based on the proximity and direction to a nearby sidewalk, and generates 6 geojson files:
-   
+
    - roads_with_both_sidewalks.json - contains all ways with sidewalks on both sides   
    - roads_with_left_sidewalks.json - contains all ways with sidewalk on the left side   
    - roads_with_right_sidewalks.json - contains all ways with sidewalk on the right side   
    - roads_without_sidewalks.json - contains all ways that don't have any sidewalks   
    - roads_too_short.json - contains all ways that are too short (connectors, links, etc) - under 20m right now   
    - roads_to_split.json - contains ways that can be good candidates for a split, i.e. 800m way that has both sidewalks for 500m and left sidewalk for remaining 300m
-   
-- **tagging.js** - script that takes JOSM .osm extract of Ottawa roads (ideally obtained by overpass API) and list of files generated by main.js and adds sidewalk tags to corresonding roads in .OSM extract. After running tagging.js resulting .OSM extract can be opened in JOSM and after checking for errors uploaded to OSM server. 
+
+- **tagging.js** - script that takes JOSM .osm extract of Ottawa roads (ideally obtained by overpass API) and list of files generated by main.js and adds sidewalk tags to corresonding roads in .OSM extract. After running tagging.js resulting .OSM extract can be opened in JOSM and after checking for errors uploaded to OSM server.
 *Important: make sure your JOSM extracts are fresh to minimize conflicts*
 
 ## Results
-Before importing results into OSM, geojson data files generated by main.js can be viewed against pedestrian network and analyzed here: https://zzptichka.github.io/ottawa-sidewalk-research/
+Before importing results into OSM, geojson data files generated by main.js can be viewed against pedestrian network and analyzed here (20MB): https://zzptichka.github.io/ottawa-sidewalk-research/
 
 ## TODO
 - **existing.html** page that would show OSM sidewalk tags for Ottawa roads, i.e. dark green = road has both sidewalks, red = road has no sidewalks, etc. To be used for verifying and fixing tags that are inconsistent with reality, based on local knowledge, satellite imagery, mapillary, etc
