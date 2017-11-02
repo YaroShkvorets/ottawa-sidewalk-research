@@ -122,6 +122,8 @@
           legendHtml += addLegendLine(setting)
         }
         legendHtml += '</table>'
+        legendHtml += '<center><a href="https://github.com/zzptichka/ottawa-sidewalk-research"><img src="icon_github.png"></a>';
+        legendHtml += '<a href="https://www.openstreetmap.org/user/Ottawa_Sidewalk_Tagging"><img src="icon_osm.png"></a></center>';
         div.innerHTML = legendHtml
         div.addEventListener('mouseover', function () {map.doubleClickZoom.disable(); });
         div.addEventListener('mouseout', function () {map.doubleClickZoom.enable(); });
