@@ -42,7 +42,7 @@ let roads = reader(inRoadDataPath).features.filter(road => road.geometry.type=='
   (road.properties.highway == "trunk" ||
   road.properties.highway == "trunk_link" ||
   road.properties.highway == "secondary" ||
-  road.properties.highway == "secondary_link" ||   
+  road.properties.highway == "secondary_link" ||
   road.properties.highway == "tertiary_link" ||   //do we need to tag links at all?
   road.properties.highway == "residential" ||
   road.properties.highway == "service" ||
@@ -117,15 +117,19 @@ for (let road of roads) {
     }
     else if(pointsTotal && pointsWithBothSidewalks>=pointsTotal*kPointsWithSidewalksThreshold){  //kPointsWithSidewalksThreshold of points have sidewalk nearby -> good
       roadsWithBothSidewalks.push(road);
+      road.properties.sidewalk = 'both'
     }
     else if(pointsTotal && pointsWithLeftSidewalk>=pointsTotal*kPointsWithSidewalksThreshold){
       roadsWithLeftSidewalks.push(road);
+      road.properties.sidewalk = 'left'
     }
     else if(pointsTotal && pointsWithRightSidewalk>=pointsTotal*kPointsWithSidewalksThreshold){
       roadsWithRightSidewalks.push(road);
+      road.properties.sidewalk = 'right'
     }
     else{
       roadsWithNoSidewalks.push(road)
+      road.properties.sidewalk = 'no'
     }
   }
   else{ //no sidewalks nearby at all
