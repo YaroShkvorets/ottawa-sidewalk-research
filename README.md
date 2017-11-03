@@ -55,7 +55,7 @@ The following scripts were written for this project:
    way["highway"="tertiary_link"](area.searchArea);
    way["highway"="trunk"](area.searchArea);
    way["highway"="trunk_link"](area.searchArea);
-   way["highway"="service"](area.searchArea);
+   way["highway"="service"]["service"!="parking_aisle"]["service"!="driveway"](area.searchArea);
    way["highway"="unclassified"](area.searchArea);
    );
    (._;>;);

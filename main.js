@@ -134,6 +134,7 @@ for (let road of roads) {
   }
   else{ //no sidewalks nearby at all
     roadsWithNoSidewalks.push(road)
+    road.properties.sidewalk = 'no'
   }
 
   if(roadlen > 300 &&
