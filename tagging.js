@@ -31,8 +31,20 @@ fs.readFile(inOsmSource, 'utf-8', function (err, data) {
 
   const doc = new xmldom().parseFromString(data, 'application/xml');
   const ways = doc.getElementsByTagName('way');
+  loop1:
   for (let i in ways) {
     let way = ways[i]
+    for(let j in way.attributes){
+      let attr = way.attributes[j]
+      if (attr.name=='user'){
+        if(attr.value=='Ottawa_Sidewalk_Tagging'){  //if we already added this tag - skip
+          continue loop1
+        }
+        else{
+          break
+        }
+      }
+    }
     for(let j in way.attributes){
       let attr = way.attributes[j]
       if (attr.name=='id') {

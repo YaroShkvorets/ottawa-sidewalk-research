@@ -4,6 +4,7 @@ ottawa_full_roads_trimble.json
 ottawa_full_from_OSM.json
 backup
 package-lock.json
+*.osm
 
 # Logs
 logs
