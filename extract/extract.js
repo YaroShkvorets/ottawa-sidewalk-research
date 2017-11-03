@@ -3,13 +3,13 @@ const writer = require('geojson-writer').writer
 const turf = require('@turf/turf')
 const ruler = require('cheap-ruler')(45.41, 'meters')
 
-//const sourcePath = "ottawa_pedestrian_network.json"   //download ottawa.ca dataset from http://data.ottawa.ca/dataset/pedestrian-network/resource/e098e33a-9046-48da-bbfb-6f4a4dc2c55e
-//const sourcePath = "ottawa_canada_roads.geojson"    //download IMPOSM extract from https://mapzen.com/data/metro-extracts/metro/ottawa_canada/
-//const sourcePath = "ottawa_full_roads_trimble.json"    //download IMPOSM extract from https://market.trimbledata.com/#/account/orders
-const sourcePath = "ottawa_full_all_tags_utf8_1.json"
-//const targetPath = "ottawa_central_sidewalks.json"
-const targetPath = "ottawa_full_roads_all_tags_1.json"
-const cityBoundaryPath = "ottawa_boundaries.json"
+//const sourcePath = "data/ottawa_pedestrian_network.json"   //download ottawa.ca dataset from http://data.ottawa.ca/dataset/pedestrian-network/resource/e098e33a-9046-48da-bbfb-6f4a4dc2c55e
+//const sourcePath = "data/ottawa_canada_roads.geojson"    //download IMPOSM extract from https://mapzen.com/data/metro-extracts/metro/ottawa_canada/
+const sourcePath = "data/ottawa_full_roads_trimble.json"    //download IMPOSM extract from https://market.trimbledata.com/#/account/orders
+//const sourcePath = "data/ottawa_full_all_tags_utf8_1.json"
+//const targetPath = "data/ottawa_central_sidewalks.json"
+const targetPath = "data/ottawa_full_roads.json"
+const cityBoundaryPath = "data/ottawa_boundaries.json"
 
 const kExtractOnlyLines = true
 const kExtractOnlyHighways = true
