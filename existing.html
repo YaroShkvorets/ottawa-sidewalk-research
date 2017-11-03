@@ -1,0 +1,231 @@
+<html>
+  <head>
+    <title>Existing Sidewalks</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@0.7.7/dist/leaflet.css" />
+    <style>
+      .info {
+        padding: 6px 8px;
+        font: 14px/16px Arial, Helvetica, sans-serif;
+        background: white;
+        background: rgba(255,255,255,1);
+        box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        border: 1px solid #9e9e9e;
+        border-radius: 5px;
+      }
+      .legend {
+        line-height: 18px;
+        color: #555;
+      }
+    </style>
+
+  </head>
+  <body style="margin:0px">
+     <div style="height: 100vh;" id="mapid"></div>
+  </body>
+
+  <script src="https://unpkg.com/leaflet@0.7.7/dist/leaflet.js"></script>
+
+  <script>
+    let map;
+    let layersControl;
+    const filePedNetworkPath = 'data/ottawa_full_sidewalks.json';
+    const fileRoadsPath = 'data/ottawa_full_roads_all_tags_2017-10-20.json';
+    
+    const settings = [{ color: '#37b9e5', width: 1, key: 'sidewalks', zIndex: 1, title: 'Pedestrian Network (<a href="http://data.ottawa.ca/dataset/pedestrian-network">city data</a>)' },
+                  { color: '#1C7C54', width: 2, key: 'both', zIndex: 2, title: 'Roads tagged with sidewalk=both'},
+                  { color: 'DarkOrchid', width: 2, key: 'left', zIndex: 3, title: 'Roads tagged with sidewalk=left'},
+                  { color: '#DD5454', width: 2, key: 'no', zIndex: 3, title: 'Roads tagged with sidewalk=no/none'},
+                  { color: 'Lime', width: 2, key: 'right', zIndex: 3, title: 'Roads tagged with sidewalk=right'}/*,
+                  { color: 'orange', width: 2, key: 'roads_too_short', zIndex: 4, title: 'Roads too short to tag (<25m)', url: 'data/roads_too_short.json' },
+                  { color: 'orange', width: 2, key: 'roads_to_split', zIndex: 4, title: 'Roads to split (50% < sidewalks < 80%)', url: 'data/roads_to_split.json' }*/]
+    const legendTitle = 'Existing sidewalks map'
+  
+    const myLayers = {};
+    
+    loadBasemap()
+    addLegend()
+    addPedNetwork()
+    addRoads()
+    
+    let highlight;
+    for(let setting of settings){
+        myLayers[setting.key]=L.geoJson(null,{
+            onEachFeature: function(feature, layer) {
+              if(feature.properties.WALK_TYPE){
+                let popup = feature.properties.WALK_TYPE;
+                popup += '<hr>Id: '+feature.properties.id;
+                layer.bindPopup(popup);
+              }
+              else if( feature.properties) {
+                  let popup = feature.properties.name?feature.properties.name:'No name';
+                  popup += '<hr>OSM: '+'<a href="http://www.openstreetmap.org/'+feature.id+'">'+feature.id+'</a>';
+                  popup += '<br>Type: '+feature.properties.highway;
+                  popup += '<br>Sidewalk: '+feature.properties.sidewalk;
+                  popup += '<br>Id: '+feature.properties.id;                  
+                  //popup += '<br>Length: '+feature.properties.length.toFixed()+' m';
+                  layer.bindPopup(popup);
+              }
+              layer.on('click', function (e) {
+                if (highlight){
+                  map.removeLayer(highlight)
+                }
+                highlight = new L.geoJson(e.target.feature,{style: {color:'#df42f4',  weight: 5}}).addTo(map);
+
+              });
+            }
+        }).addTo(map);
+    }
+
+
+
+    
+    function addPedNetwork(){
+      const xhr = new XMLHttpRequest()
+      xhr.open('GET', filePedNetworkPath)
+      xhr.setRequestHeader('Content-Type', 'application/json')
+      xhr.onload = function () {
+        if (xhr.status === 200) {
+          const data = JSON.parse(xhr.responseText);
+          
+          myLayers['sidewalks'].addData(data.features).bringToBack();
+          myLayers['sidewalks'].setStyle({
+              "color": settings[0].color,
+              "weight": settings[0].width,
+              "opacity": 0.8
+          });
+                    
+        } else {
+          alert('Request failed.  Returned status of ' + xhr.status)
+        }
+      }
+      xhr.send()
+      
+    }
+    
+    function addRoads(){
+      const xhr = new XMLHttpRequest()
+      xhr.open('GET', fileRoadsPath)
+      xhr.setRequestHeader('Content-Type', 'application/json')
+      xhr.onload = function () {
+        if (xhr.status === 200) {
+          const data = JSON.parse(xhr.responseText);
+          let sidewalksNo =[], sidewalksBoth =[], sidewalksLeft =[], sidewalksRight =[];
+          for(let feature of data.features){
+            if(!feature.properties.sidewalk){continue}
+            switch (feature.properties.sidewalk){
+              case 'none':
+              case 'no':   sidewalksNo.push(feature); break;
+              case 'both':   sidewalksBoth.push(feature); break;
+              case 'left':   sidewalksLeft.push(feature); break;
+              case 'right':   sidewalksRight.push(feature); break;
+            }            
+          }
+          myLayers['no'].addData(sidewalksNo).bringToBack();
+          myLayers['both'].addData(sidewalksBoth).bringToBack();
+          myLayers['left'].addData(sidewalksLeft).bringToBack();
+          myLayers['right'].addData(sidewalksRight).bringToBack();
+          
+          for (let setting of settings) {
+            myLayers[setting.key].setStyle({
+                "color": setting.color,
+                "weight": setting.width,
+                "opacity": 0.8
+            });
+          }
+                  
+        } else {
+          alert('Request failed.  Returned status of ' + xhr.status)
+        }
+      }
+      xhr.send()
+      
+    }
+
+
+
+
+    function addLegend () {
+      const legend = L.control({position: 'topright'})
+      legend.onAdd = function (map) {
+        const div = L.DomUtil.create('div', 'info legend')
+        let legendHtml = '<center><h3>' + legendTitle + '</h3></center><table>'
+        for (let setting of settings) {
+          legendHtml += addLegendLine(setting)
+        }
+        legendHtml += '</table>'
+        div.innerHTML = legendHtml
+        div.addEventListener('mouseover', function () {map.doubleClickZoom.disable(); });
+        div.addEventListener('mouseout', function () {map.doubleClickZoom.enable(); });
+        return div
+      }
+      legend.addTo(map)
+    }
+    function addLegendLine (setting) {
+      return ('<tr><td><input type="checkbox" id="' +
+        setting.key +
+        '" onclick="toggleLayer(this)" checked /></td>' +
+        '<td><hr style="display:inline-block; width: 50px;" color="' +
+        setting.color +
+        '" size="5" /></td><td>' +
+        setting.title +
+        '</td></tr>'
+      )
+    }
+    function toggleLayer (checkbox) {
+      if (checkbox.checked) {
+        map.addLayer(myLayers[checkbox.id])
+      } else {
+        map.removeLayer(myLayers[checkbox.id])
+      }
+    }
+    
+    function loadBasemap() {
+    	var mapboxURL ='https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoienpwdGljaGthIiwiYSI6ImNqN2FubTQ5ejBpZDAyd285MmZsdHN3d3IifQ.dc6SvmJLcl7KGPQlBYFj-g';
+    	var attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+    			'<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+    			'Imagery Â© <a href="http://mapbox.com">Mapbox</a>';
+
+    	var grayscale = L.tileLayer(mapboxURL, {
+    		maxZoom: 21,
+    		attribution: attribution,
+    		id: 'mapbox.light'
+    	});
+
+    	var dark = L.tileLayer(mapboxURL, {
+    		maxZoom: 21,
+    		attribution: attribution,
+    		id: 'mapbox.dark'
+    	});
+
+    	var satellite = L.tileLayer(mapboxURL, {
+    		maxZoom: 21,
+    		attribution: attribution,
+    		id: 'mapbox.satellite'
+    	});
+
+    	var streets = L.tileLayer(mapboxURL, {
+    		maxZoom: 21,
+    		attribution: attribution,
+    		id: 'mapbox.streets'
+    	});
+
+    	map = L.map('mapid', {
+    		center: [45.410382, -75.708117],
+    		zoom: 14,
+    		layers: [grayscale]
+    	});
+
+    	var baseMaps = {
+    		"Light": grayscale,
+    		"Dark": dark,
+    		"Satellite": satellite,
+    		"Streets": streets,
+    	};
+
+    	layersControl = L.control.layers(baseMaps, null, {collapsed: true, position: 'bottomleft'})
+    	layersControl.addTo(map);
+    }
+
+  </script>
+
+</html>
