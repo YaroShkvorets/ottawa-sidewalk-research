@@ -6,8 +6,8 @@ const fs = require('fs');
 
 const inTaggedRoadsFiles = ["data/roads_with_both_sidewalks.json", "data/roads_with_left_sidewalks.json", "data/roads_with_right_sidewalks.json", "data/roads_without_sidewalks.json"]
 
-const inOsmSource = "osm/ottawa_residential.osm"
-const outOsmSource = "osm/ottawa_residential_with_sidewalks.osm"
+const inOsmSource = "osm/ottawa_all_roads.osm"
+const outOsmSource = "osm/ottawa_all_roads_with_sidewalks.osm"
 
 const serializer = new XMLSerializer();
 const road_sidewalk_tags = {}
@@ -70,13 +70,13 @@ fs.readFile(inOsmSource, 'utf-8', function (err, data) {
       }
     }
   }
-
+console.log("Saved! Total tagged roads:", totalTagged);/*
   fs.writeFile(outOsmSource, serializer.serializeToString(doc), function(err) {
     if(err) {
         return console.log(err);
     }
-    console.log("Saved! Total tagged roads:", totalTagged);
-  });
+    
+  });*/
 });
 
 
